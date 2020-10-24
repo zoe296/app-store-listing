@@ -1,26 +1,37 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import styled from 'styled-components';
+import Recommendation from './components/Recommendation';
 
-function App() {
+const Header = styled.div`
+  padding: 6px 12px;
+  background-color: #f2f2f3;
+  border-bottom: solid 1px #e2e3e4;
+`;
+
+const Input = styled.input`
+  box-sizing: border-box;
+  width: 100%;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background-color: #e2e3e4;
+  font-size: 16px;
+  text-align: center;
+
+  :focus {
+    outline: none;
+  }
+`;
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Header>
+        <Input placeholder="搜尋" />
+      </Header>
+      <Recommendation />
+    </>
   );
-}
+};
 
 export default App;
