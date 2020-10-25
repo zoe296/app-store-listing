@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import Listing from './components/Listing';
 import Recommendation from './components/Recommendation';
 
 const Header = styled.div`
@@ -30,6 +31,7 @@ const App = () => {
         <Input placeholder="搜尋" />
       </Header>
       <Recommendation />
+      <Listing />
     </>
   );
 };

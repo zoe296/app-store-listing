@@ -11,7 +11,7 @@ interface Feed {
   country: string;
   icon: string;
   updated: string;
-  results: Result[];
+  results: App[];
 }
 
 interface Author {
@@ -24,7 +24,7 @@ interface Link {
   alternate?: string;
 }
 
-interface Result {
+interface App {
   artistName: string;
   id: string;
   releaseDate: string;
@@ -46,4 +46,56 @@ interface Genre {
 
 enum Kind {
   IosSoftware = 'iosSoftware',
+}
+
+export interface AppResponse {
+  resultCount: number;
+  results: AppDetail[];
+}
+
+interface AppDetail {
+  isGameCenterEnabled: boolean;
+  supportedDevices: string[];
+  advisories: string[];
+  ipadScreenshotUrls: string[];
+  appletvScreenshotUrls: any[];
+  artworkUrl60: string;
+  artworkUrl512: string;
+  artworkUrl100: string;
+  artistViewUrl: string;
+  screenshotUrls: string[];
+  features: string[];
+  kind: string;
+  currency: string;
+  trackId: number;
+  trackName: string;
+  releaseNotes: string;
+  sellerName: string;
+  primaryGenreId: number;
+  isVppDeviceBasedLicensingEnabled: boolean;
+  currentVersionReleaseDate: string;
+  minimumOsVersion: string;
+  releaseDate: string;
+  genreIds: string[];
+  formattedPrice: string;
+  primaryGenreName: string;
+  trackViewUrl: string;
+  trackCensoredName: string;
+  languageCodesISO2A: string[];
+  fileSizeBytes: string;
+  sellerUrl: string;
+  contentAdvisoryRating: string;
+  averageUserRatingForCurrentVersion: number;
+  userRatingCountForCurrentVersion: number;
+  averageUserRating: number;
+  trackContentRating: string;
+  genres: string[];
+  artistId: number;
+  artistName: string;
+  price: number;
+  description: string;
+  bundleId: string;
+  version: string;
+  wrapperType: string;
+  userRatingCount: number;
 }
