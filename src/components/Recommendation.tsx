@@ -1,8 +1,10 @@
-import React, { FC, useEffect, useRef, useCallback } from 'react';
+import React, { FC, useEffect, useRef, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import useSWR from 'swr';
 import fetcher from '../utils/fetcher';
 import { FeedResponse } from '../interfaces/response';
+import SearchIcon from './SearchIcon';
+import LoadingSpinner from './LoadingSpinner';
 
 interface IProps {
   keyword: string;
@@ -63,6 +65,11 @@ const Name = styled.div<{ color: string; paddingTop: string }>`
   -webkit-box-orient: vertical;
 `;
 
+const ContentWrapper = styled.div<{ sidePadding: string }>`
+  padding: ${({ sidePadding }) => `${sidePadding} 0`};
+  text-align: center;
+`;
+
 const Recommendation: FC<IProps> = ({ keyword, scrollRate }) => {
   const listingRef = useRef<HTMLDivElement>(null);
 
@@ -85,15 +92,20 @@ const Recommendation: FC<IProps> = ({ keyword, scrollRate }) => {
     handleScroll();
   }, [handleScroll]);
 
+  const filteredList = useMemo(
+    () =>
+      data?.feed.results.filter(
+        app => app.name.match(keyword) || app.genres[0].name.match(keyword)
+      ) || [],
+    [data, keyword]
+  );
+
   return (
     <Container>
       <Title>推介</Title>
-      <Listing ref={listingRef}>
-        {data?.feed.results
-          .filter(
-            app => app.name.match(keyword) || app.genres[0].name.match(keyword)
-          )
-          .map((app, idx) => (
+      {filteredList && (
+        <Listing ref={listingRef}>
+          {filteredList.map((app, idx) => (
             <div key={`recommendation_${app.id}_${idx}`}>
               <Image src={app.artworkUrl100} />
               <Name color="black" paddingTop="12px">
@@ -104,7 +116,19 @@ const Recommendation: FC<IProps> = ({ keyword, scrollRate }) => {
               </Name>
             </div>
           ))}
-      </Listing>
+        </Listing>
+      )}
+      {data && !filteredList.length && (
+        <ContentWrapper sidePadding="43px">
+          <SearchIcon size={50} color="#757575" />
+          <div>找不到</div>
+        </ContentWrapper>
+      )}
+      {!data && (
+        <ContentWrapper sidePadding="60px">
+          <LoadingSpinner size={40} />
+        </ContentWrapper>
+      )}
     </Container>
   );
 };
