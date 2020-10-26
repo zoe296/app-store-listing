@@ -73,8 +73,8 @@ const Recommendation: FC<{ keyword: string }> = ({ keyword }) => {
             (app) =>
               app.name.match(keyword) || app.genres[0].name.match(keyword)
           )
-          .map((app) => (
-            <div key={app.id}>
+          .map((app, idx) => (
+            <div key={`recommendation_${app.id}_${idx}`}>
               <Image src={app.artworkUrl100} />
               <Name color="black" paddingTop="12px">
                 {app.name}

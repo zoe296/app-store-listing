@@ -6,16 +6,12 @@ const Star = styled.span`
   color: #fe9205;
 `;
 
-const StarRating: FC<{ rating: number }> = ({ rating }) => {
-  return (
-    <>
-      <Star>☆</Star>
-      <Star>☆</Star>
-      <Star>☆</Star>
-      <Star>☆</Star>
-      <Star>☆</Star>
-    </>
-  );
-};
+const StarRating: FC<{ rating: number }> = ({ rating }) => (
+  <>
+    {Array.from(Array(5)).map((_, idx) => (
+      <Star key={idx}>{rating > idx ? '★' : '☆'}</Star>
+    ))}
+  </>
+);
 
 export default StarRating;

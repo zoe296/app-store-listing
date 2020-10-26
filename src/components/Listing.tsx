@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import useSWR from 'swr';
 import { AppResponse, FeedResponse } from '../interfaces/response';
 import fetcher from '../utils/fetcher';
+import LoadingSpinner from './LoadingSpinner';
 import StarRating from './StarRating';
 
 interface IAppData {
@@ -62,6 +63,11 @@ const Genre = styled(Name)`
 const Count = styled.span`
   color: #757575;
   font-size: 12px;
+`;
+
+const LoadingWrapper = styled.div`
+  padding: 8px;
+  text-align: center;
 `;
 
 const Listing: FC<{ keyword: string }> = ({ keyword }) => {
@@ -134,7 +140,7 @@ const Listing: FC<{ keyword: string }> = ({ keyword }) => {
             app.summary.match(keyword)
         )
         .map((app, idx) => (
-          <Wrapper key={app.id}>
+          <Wrapper key={`listing_${app.id}_${idx}`}>
             <Number>{idx + 1}</Number>
             <Image isCircle={idx % 2 === 1} src={app.imageUrl} />
             <Content>
@@ -145,6 +151,11 @@ const Listing: FC<{ keyword: string }> = ({ keyword }) => {
             </Content>
           </Wrapper>
         ))}
+      {!data && (
+        <LoadingWrapper>
+          <LoadingSpinner size={32} />
+        </LoadingWrapper>
+      )}
     </Container>
   );
 };
