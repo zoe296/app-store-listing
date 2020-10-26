@@ -70,8 +70,7 @@ const Recommendation: FC<{ keyword: string }> = ({ keyword }) => {
       <Listing>
         {data?.feed.results
           .filter(
-            (app) =>
-              app.name.match(keyword) || app.genres[0].name.match(keyword)
+            app => app.name.match(keyword) || app.genres[0].name.match(keyword)
           )
           .map((app, idx) => (
             <div key={`recommendation_${app.id}_${idx}`}>

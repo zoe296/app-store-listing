@@ -82,7 +82,7 @@ const Listing: FC<{ keyword: string }> = ({ keyword }) => {
   const appList =
     data?.feed.results.slice(data?.feed.results.length - 10) || [];
 
-  const ids = appList.map((app) => app.id);
+  const ids = appList.map(app => app.id);
   const { data: appDetail } = useSWR<AppResponse>(
     ids.length ? `https://itunes.apple.com/hk/lookup?id=${ids}` : null,
     fetcher
@@ -133,7 +133,7 @@ const Listing: FC<{ keyword: string }> = ({ keyword }) => {
     <Container onScroll={handleScroll}>
       {list
         .filter(
-          (app) =>
+          app =>
             app.name.match(keyword) ||
             app.category.match(keyword) ||
             app.author.match(keyword) ||
