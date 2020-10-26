@@ -1,8 +1,13 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
 import useSWR from 'swr';
 import fetcher from '../utils/fetcher';
 import { FeedResponse } from '../interfaces/response';
+
+interface IProps {
+  keyword: string;
+  scrollRate: number;
+}
 
 const Container = styled.div`
   padding: 16px 0;
@@ -58,16 +63,32 @@ const Name = styled.div<{ color: string; paddingTop: string }>`
   -webkit-box-orient: vertical;
 `;
 
-const Recommendation: FC<{ keyword: string }> = ({ keyword }) => {
+const Recommendation: FC<IProps> = ({ keyword, scrollRate }) => {
+  const listingRef = useRef<HTMLDivElement>(null);
+
   const { data } = useSWR<FeedResponse>(
     'https://rss.itunes.apple.com/api/v1/hk/ios-apps/top-grossing/all/10/explicit.json',
     fetcher
   );
 
+  const handleScroll = useCallback(() => {
+    if (listingRef.current) {
+      const scrollWidth = listingRef.current.scrollWidth;
+      const width = listingRef.current.clientWidth;
+      const maxScrollLeft = scrollWidth - width;
+
+      listingRef.current.scrollLeft = maxScrollLeft * scrollRate;
+    }
+  }, [scrollRate]);
+
+  useEffect(() => {
+    handleScroll();
+  }, [handleScroll]);
+
   return (
     <Container>
       <Title>推介</Title>
-      <Listing>
+      <Listing ref={listingRef}>
         {data?.feed.results
           .filter(
             app => app.name.match(keyword) || app.genres[0].name.match(keyword)

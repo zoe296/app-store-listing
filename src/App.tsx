@@ -26,9 +26,14 @@ const Input = styled.input`
 
 const App = () => {
   const [keyword, setKeyword] = useState<string>('');
+  const [scrollRate, setScrollRate] = useState<number>(0);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setKeyword(e.target.value);
+  };
+
+  const handleListScroll = (rate: number) => {
+    setScrollRate(rate);
   };
 
   return (
@@ -41,8 +46,8 @@ const App = () => {
           onChange={handleChange}
         />
       </Header>
-      <Recommendation keyword={keyword} />
-      <Listing keyword={keyword} />
+      <Recommendation keyword={keyword} scrollRate={scrollRate} />
+      <Listing keyword={keyword} onListScroll={handleListScroll} />
     </>
   );
 };

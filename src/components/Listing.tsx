@@ -1,10 +1,16 @@
 import React, { FC, UIEvent, useState } from 'react';
 import styled from 'styled-components';
 import useSWR from 'swr';
+import { throttle } from 'lodash-es';
 import { AppResponse, FeedResponse } from '../interfaces/response';
 import fetcher from '../utils/fetcher';
 import LoadingSpinner from './LoadingSpinner';
 import StarRating from './StarRating';
+
+interface IProps {
+  keyword: string;
+  onListScroll: (rate: number) => void;
+}
 
 interface IAppData {
   id: string;
@@ -19,13 +25,18 @@ interface IAppData {
 
 const Container = styled.div`
   height: calc(100vh - 272px);
-  overflow-x: scroll;
+  overflow: auto;
 `;
 
 const Wrapper = styled.div`
   display: flex;
+  justify-content: space-between;
   padding: 12px;
   border-bottom: solid 1px #e2e3e4;
+`;
+
+const Info = styled.div`
+  display: flex;
 `;
 
 const Number = styled.div`
@@ -56,7 +67,7 @@ const Name = styled.div<{ color: string }>`
   color: ${({ color }) => color};
 `;
 
-const Genre = styled(Name)`
+const Category = styled(Name)`
   padding: 4px 0;
 `;
 
@@ -65,12 +76,24 @@ const Count = styled.span`
   font-size: 12px;
 `;
 
+const Summary = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: calc(100% - 400px);
+  margin: auto 0;
+
+  @media (max-width: 640px) {
+    display: none;
+  }
+`;
+
 const LoadingWrapper = styled.div`
   padding: 8px;
   text-align: center;
 `;
 
-const Listing: FC<{ keyword: string }> = ({ keyword }) => {
+const Listing: FC<IProps> = ({ keyword, onListScroll }) => {
   const [scrollTop, setScrollTop] = useState<number>(0);
   const [total, setTotal] = useState<number>(10);
   const [list, setList] = useState<IAppData[]>([]);
@@ -114,20 +137,28 @@ const Listing: FC<{ keyword: string }> = ({ keyword }) => {
     setList(res);
   }
 
-  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
-    const currentScrollTop = event.currentTarget.scrollTop;
-    const direction = currentScrollTop > scrollTop ? 'DOWN' : 'UP';
-    setScrollTop(currentScrollTop);
+  const handleScroll = throttle(
+    (event: UIEvent<HTMLDivElement>) => {
+      const currentScrollTop = event.currentTarget?.scrollTop || scrollTop;
+      const direction = currentScrollTop > scrollTop ? 'DOWN' : 'UP';
+      const maxScrollHeight =
+        event.currentTarget?.scrollHeight - event.currentTarget?.clientHeight;
 
-    if (
-      total < 100 &&
-      direction === 'DOWN' &&
-      event.currentTarget.scrollTop ===
-        event.currentTarget.scrollHeight - event.currentTarget.clientHeight
-    ) {
-      setTotal(total + 10);
-    }
-  };
+      setScrollTop(currentScrollTop);
+      onListScroll(currentScrollTop / maxScrollHeight);
+
+      if (
+        data &&
+        total < 100 &&
+        direction === 'DOWN' &&
+        event.currentTarget.scrollTop === maxScrollHeight
+      ) {
+        setTotal(total + 10);
+      }
+    },
+    1000,
+    { leading: true, trailing: true }
+  );
 
   return (
     <Container onScroll={handleScroll}>
@@ -141,14 +172,17 @@ const Listing: FC<{ keyword: string }> = ({ keyword }) => {
         )
         .map((app, idx) => (
           <Wrapper key={`listing_${app.id}_${idx}`}>
-            <Number>{idx + 1}</Number>
-            <Image isCircle={idx % 2 === 1} src={app.imageUrl} />
-            <Content>
-              <Name color="black">{app.name}</Name>
-              <Genre color="#757575">{app.category}</Genre>
-              <StarRating rating={app.rating} />
-              <Count>({app.comments})</Count>
-            </Content>
+            <Info>
+              <Number>{idx + 1}</Number>
+              <Image isCircle={idx % 2 === 1} src={app.imageUrl} />
+              <Content>
+                <Name color="black">{app.name}</Name>
+                <Category color="#757575">{app.category}</Category>
+                <StarRating rating={app.rating} />
+                <Count>({app.comments})</Count>
+              </Content>
+            </Info>
+            <Summary>{app.summary}</Summary>
           </Wrapper>
         ))}
       {!data && (
