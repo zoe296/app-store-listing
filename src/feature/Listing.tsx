@@ -2,10 +2,10 @@ import React, { FC, UIEvent, useState } from 'react';
 import styled from 'styled-components';
 import useSWR from 'swr';
 import { throttle } from 'lodash-es';
-import { AppResponse, FeedResponse } from '../interfaces/response';
 import fetcher from '../utils/fetcher';
-import LoadingSpinner from './LoadingSpinner';
-import StarRating from './StarRating';
+import LoadingSpinner from '../components/LoadingSpinner';
+import StarRating from '../components/StarRating';
+import { AppResponse, FeedResponse } from '../interfaces/response';
 
 interface IProps {
   keyword: string;

@@ -1,7 +1,7 @@
 import React, { useState, ChangeEvent } from 'react';
 import styled from 'styled-components';
-import Listing from './components/Listing';
-import Recommendation from './components/Recommendation';
+import Listing from './feature/Listing';
+import Recommendation from './feature/Recommendation';
 
 const Header = styled.div`
   padding: 6px 12px;
