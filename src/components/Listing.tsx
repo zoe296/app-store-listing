@@ -1,9 +1,25 @@
-import React, { FC } from 'react';
+import React, { FC, UIEvent, useState } from 'react';
 import styled from 'styled-components';
 import useSWR from 'swr';
 import { AppResponse, FeedResponse } from '../interfaces/response';
 import fetcher from '../utils/fetcher';
 import StarRating from './StarRating';
+
+interface IAppData {
+  id: string;
+  name: string;
+  category: string;
+  imageUrl: string;
+  rating: number;
+  comments: number;
+  author: string;
+  summary: string;
+}
+
+const Container = styled.div`
+  height: calc(100vh - 272px);
+  overflow-x: scroll;
+`;
 
 const Wrapper = styled.div`
   display: flex;
@@ -14,7 +30,7 @@ const Wrapper = styled.div`
 const Number = styled.div`
   padding: 0 8px;
   margin: auto 0;
-  width: 23px;
+  width: 36px;
   height: 23px;
   font-size: 20px;
   text-align: center;
@@ -48,34 +64,88 @@ const Count = styled.span`
   font-size: 12px;
 `;
 
-const Listing: FC = () => {
-  const { data } = useSWR<FeedResponse>(
-    'https://rss.itunes.apple.com/api/v1/hk/ios-apps/top-free/all/10/explicit.json',
-    fetcher
-  );
-  const ids = data?.feed.results.map((app) => app.id);
+const Listing: FC<{ keyword: string }> = ({ keyword }) => {
+  const [scrollTop, setScrollTop] = useState<number>(0);
+  const [total, setTotal] = useState<number>(10);
+  const [list, setList] = useState<IAppData[]>([]);
 
-  const { data: appDetail } = useSWR<AppResponse>(
-    ids ? `https://itunes.apple.com/hk/lookup?id=${ids}` : null,
+  const { data } = useSWR<FeedResponse>(
+    `https://rss.itunes.apple.com/api/v1/hk/ios-apps/top-free/all/${total}/explicit.json`,
     fetcher
   );
-  const apps = appDetail?.results || [];
+  const appList =
+    data?.feed.results.slice(data?.feed.results.length - 10) || [];
+
+  const ids = appList.map((app) => app.id);
+  const { data: appDetail } = useSWR<AppResponse>(
+    ids.length ? `https://itunes.apple.com/hk/lookup?id=${ids}` : null,
+    fetcher
+  );
+
+  if (
+    data?.feed.results &&
+    appDetail?.results &&
+    appList.length &&
+    list.length < data?.feed.results.length
+  ) {
+    const appDetails = appDetail.results;
+
+    const res = appList.reduce((acc, app, idx) => {
+      acc.push({
+        id: app.id,
+        name: app.name,
+        category: app.genres[0].name,
+        imageUrl: app.artworkUrl100,
+        rating: appDetails[idx].averageUserRating,
+        comments: appDetails[idx].userRatingCount,
+        author: app.artistName,
+        summary: appDetails[idx].description,
+      });
+
+      return acc;
+    }, list);
+
+    setList(res);
+  }
+
+  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
+    const currentScrollTop = event.currentTarget.scrollTop;
+    const direction = currentScrollTop > scrollTop ? 'DOWN' : 'UP';
+    setScrollTop(currentScrollTop);
+
+    if (
+      total < 100 &&
+      direction === 'DOWN' &&
+      event.currentTarget.scrollTop ===
+        event.currentTarget.scrollHeight - event.currentTarget.clientHeight
+    ) {
+      setTotal(total + 10);
+    }
+  };
 
   return (
-    <>
-      {data?.feed.results.map((app, idx) => (
-        <Wrapper key={app.id}>
-          <Number>{idx + 1}</Number>
-          <Image isCircle={idx % 2 === 1} src={app.artworkUrl100} />
-          <Content>
-            <Name color="black">{apps[idx]?.trackCensoredName}</Name>
-            <Genre color="#757575">{apps[idx]?.genres[0]}</Genre>
-            <StarRating rating={apps[idx]?.averageUserRating} />
-            <Count>({apps[idx]?.userRatingCount})</Count>
-          </Content>
-        </Wrapper>
-      ))}
-    </>
+    <Container onScroll={handleScroll}>
+      {list
+        .filter(
+          (app) =>
+            app.name.match(keyword) ||
+            app.category.match(keyword) ||
+            app.author.match(keyword) ||
+            app.summary.match(keyword)
+        )
+        .map((app, idx) => (
+          <Wrapper key={app.id}>
+            <Number>{idx + 1}</Number>
+            <Image isCircle={idx % 2 === 1} src={app.imageUrl} />
+            <Content>
+              <Name color="black">{app.name}</Name>
+              <Genre color="#757575">{app.category}</Genre>
+              <StarRating rating={app.rating} />
+              <Count>({app.comments})</Count>
+            </Content>
+          </Wrapper>
+        ))}
+    </Container>
   );
 };
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import styled from 'styled-components';
 import Listing from './components/Listing';
 import Recommendation from './components/Recommendation';
@@ -25,13 +25,24 @@ const Input = styled.input`
 `;
 
 const App = () => {
+  const [keyword, setKeyword] = useState<string>('');
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setKeyword(e.target.value);
+  };
+
   return (
     <>
       <Header>
-        <Input placeholder="搜尋" />
+        <Input
+          type="input"
+          placeholder="搜尋"
+          value={keyword}
+          onChange={handleChange}
+        />
       </Header>
-      <Recommendation />
-      <Listing />
+      <Recommendation keyword={keyword} />
+      <Listing keyword={keyword} />
     </>
   );
 };

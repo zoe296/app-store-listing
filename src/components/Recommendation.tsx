@@ -5,14 +5,14 @@ import fetcher from '../utils/fetcher';
 import { FeedResponse } from '../interfaces/response';
 
 const Container = styled.div`
-  padding: 16px 0 16px 24px;
+  padding: 16px 0;
   border-bottom: solid 1px #e2e3e4;
 `;
 
 const Title = styled.div`
   font-size: 20px;
   font-weight: bold;
-  padding-bottom: 16px;
+  padding: 0 0 16px 24px;
 `;
 
 const Listing = styled.div`
@@ -30,7 +30,7 @@ const Listing = styled.div`
     padding: 0 8px;
   }
   > div:first-child {
-    padding-right: 8px;
+    padding: 0 8px 0 24px;
   }
   > div:last-child {
     padding: 0 24px 0 8px;
@@ -58,7 +58,7 @@ const Name = styled.div<{ color: string; paddingTop: string }>`
   -webkit-box-orient: vertical;
 `;
 
-const Recommendation: FC = () => {
+const Recommendation: FC<{ keyword: string }> = ({ keyword }) => {
   const { data } = useSWR<FeedResponse>(
     'https://rss.itunes.apple.com/api/v1/hk/ios-apps/top-grossing/all/10/explicit.json',
     fetcher
@@ -68,17 +68,22 @@ const Recommendation: FC = () => {
     <Container>
       <Title>推介</Title>
       <Listing>
-        {data?.feed.results.map((app) => (
-          <div key={app.id}>
-            <Image src={app.artworkUrl100} />
-            <Name color="black" paddingTop="12px">
-              {app.name}
-            </Name>
-            <Name color="#757575" paddingTop="4px">
-              {app.genres[0].name}
-            </Name>
-          </div>
-        ))}
+        {data?.feed.results
+          .filter(
+            (app) =>
+              app.name.match(keyword) || app.genres[0].name.match(keyword)
+          )
+          .map((app) => (
+            <div key={app.id}>
+              <Image src={app.artworkUrl100} />
+              <Name color="black" paddingTop="12px">
+                {app.name}
+              </Name>
+              <Name color="#757575" paddingTop="4px">
+                {app.genres[0].name}
+              </Name>
+            </div>
+          ))}
       </Listing>
     </Container>
   );
