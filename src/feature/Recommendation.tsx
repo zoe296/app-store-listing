@@ -2,9 +2,9 @@ import React, { FC, useEffect, useRef, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import useSWR from 'swr';
 import fetcher from '../utils/fetcher';
+import SearchIcon from '../components/SearchIcon';
+import LoadingSpinner from '../components/LoadingSpinner';
 import { FeedResponse } from '../interfaces/response';
-import SearchIcon from './SearchIcon';
-import LoadingSpinner from './LoadingSpinner';
 
 interface IProps {
   keyword: string;
